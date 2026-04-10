@@ -601,9 +601,18 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
                     格式化
                 </button>
-                <button class="btn btn-outline btn-sm" id="fs-revert-btn">还原</button>
-                <button class="btn btn-outline btn-sm" id="fs-copy-btn">复制源码</button>
-                <button class="btn btn-success btn-sm" id="fs-download-btn">下载文件</button>
+                <button class="btn btn-outline btn-sm" id="fs-revert-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                    还原
+                </button>
+                <button class="btn btn-outline btn-sm" id="fs-copy-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    复制源码
+                </button>
+                <button class="btn btn-success btn-sm" id="fs-download-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    下载文件
+                </button>
                 <button class="btn btn-outline btn-sm" id="fs-exit-btn" title="退出全屏">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/>
@@ -655,7 +664,7 @@
                     <label>订阅链接</label>
                     <div class="url-header">
                         <span class="name-label">名称（可选）</span>
-                        <span class="link-label">订阅链接（可使用https://example.com/sub等占位地址，可在YAML文件生成后本地修改）</span>
+                        <span class="link-label">订阅链接（可使用 https://example.com/sub 等占位地址，可在YAML文件生成后本地修改）</span>
                     </div>
                     <div id="url-list">
                         <div class="url-item">
@@ -760,7 +769,14 @@
             <div class="tab-content" id="source-tab">
                 <div class="url-output-header">
                     <span style="font-weight:600;font-size:0.9rem;">转换链接</span>
-                    <button class="btn btn-outline btn-sm" id="copy-url-btn" style="display:none;">复制链接</button>
+			<button class="btn btn-outline btn-sm" id="copy-url-btn" style="display:none;">
+  			  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    			    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+       				 <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+   			 </svg>
+ 			   复制链接
+			</button>
+
                 </div>
                 <div class="url-output" id="output-url" style="display:none;"></div>
 
@@ -774,9 +790,18 @@
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
                             格式化
                         </button>
-                        <button class="btn btn-outline btn-sm" id="revert-btn" style="display:none;">还原</button>
-                        <button class="btn btn-outline btn-sm" id="copy-source-btn" style="display:none;">复制源码</button>
-                        <button class="btn btn-success btn-sm" id="download-btn" style="display:none;">下载文件</button>
+                        <button class="btn btn-outline btn-sm" id="revert-btn" style="display:none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                            还原
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="copy-source-btn" style="display:none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                            复制源码
+                        </button>
+                        <button class="btn btn-success btn-sm" id="download-btn" style="display:none;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            下载文件
+                        </button>
 			            <button class="btn btn-outline btn-sm" id="fullscreen-btn" style="display:none;" title="全屏编辑">
                             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
