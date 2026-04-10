@@ -1,7 +1,1292 @@
-<p>Hello 大家好</p>
-<p>很高兴你来到这里, 你可以在以下的网站找到我</p>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>订阅链接转换工具 - 基于SubConverter-Extended</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface-hover: #334155;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --success: #22c55e;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --yaml-key: #7dd3fc;
+            --yaml-string: #86efac;
+            --yaml-number: #fbbf24;
+            --yaml-bool: #c084fc;
+            --yaml-null: #f87171;
+            --yaml-comment: #64748b;
+            --yaml-dash: #fb923c;
+            --yaml-colon: #94a3b8;
+            --yaml-anchor: #f472b6;
+            --yaml-tag: #e879f9;
+            --editor-bg: #0c1222;
+            --gutter-bg: #0a0f1d;
+            --gutter-text: #475569;
+            --gutter-active: #94a3b8;
+            --highlight-line: rgba(99,102,241,0.06);
+            --editor-font: 'JetBrains Mono', 'Consolas', 'Monaco', monospace;
+            --editor-font-size: 14px;
+            --editor-line-height: 1.6;
+            --editor-padding: 16px;
+        }
 
-<ul>
-  <li> <a href="https://www.zhihu.com/people/AJLoveChina">知乎</a> </li>
-  <li> <a href="http://hejie.nigeerhuo.com">我的博客(已经不更细了,现在在知乎写文章)</a> </li>
-</ul>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 2rem 1rem;
+            min-height: 100vh;
+        }
+
+        .container { max-width: 1100px; margin: 0 auto; }
+
+        header { text-align: center; margin-bottom: 2.5rem; }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle { color: var(--text-muted); font-size: 1.1rem; }
+
+        .card {
+            background: var(--surface);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .form-group { margin-bottom: 1.5rem; }
+
+        label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--text); }
+
+        .hint { font-size: 0.875rem; color: var(--text-muted); margin-top: 0.25rem; font-weight: normal; }
+
+        input, textarea, select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0.75rem center;
+            padding-right: 2.5rem;
+        }
+
+        select option { background: var(--surface); color: var(--text); }
+
+        .select-with-custom {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .select-with-custom select { flex: 1; }
+
+        .custom-url-input {
+            flex: 0 0 70%;
+            min-width: 0;
+            max-width: 70%;
+        }
+
+        .custom-url-input.hidden { display: none; }
+
+        .row { display: flex; gap: 1rem; }
+        .row .form-group { flex: 1; }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 0.75rem;
+            margin-top: 0.5rem;
+        }
+
+        .option-group { display: flex; align-items: center; gap: 0.5rem; }
+        .option-group input[type="checkbox"] { width: auto; accent-color: var(--primary); }
+        .option-group label { margin-bottom: 0; font-weight: normal; cursor: pointer; }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+            width: 100%;
+        }
+
+        .btn:hover { background: var(--primary-hover); }
+        .btn:active { transform: scale(0.98); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-sm { padding: 0.375rem 0.75rem; font-size: 0.875rem; width: auto; }
+
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-muted); }
+        .btn-outline:hover { background: var(--surface-hover); color: var(--text); }
+
+        .btn-success { background: var(--success); }
+        .btn-success:hover { background: #16a34a; }
+
+        .error-message {
+            color: var(--error);
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .tabs { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+            color: var(--text-muted);
+            font-weight: 500;
+            position: relative;
+        }
+
+        .tab:hover { color: var(--text); }
+        .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+
+        .tab .badge {
+            position: absolute; top: 4px; right: 4px;
+            width: 8px; height: 8px; border-radius: 50%;
+            background: var(--success); display: none;
+        }
+
+        .tab .badge.show { display: block; }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .advanced-toggle {
+            display: flex; align-items: center; gap: 0.5rem;
+            cursor: pointer; color: var(--text-muted);
+            font-size: 0.9rem; font-weight: 500;
+            padding: 0.75rem 0; margin-bottom: 0.75rem;
+            border-top: 1px solid var(--border);
+            user-select: none; transition: color 0.2s;
+        }
+
+        .advanced-toggle:hover { color: var(--text); }
+
+        .advanced-toggle .arrow {
+            display: inline-block;
+            transition: transform 0.2s;
+            font-size: 0.7rem;
+        }
+
+        .advanced-toggle.open .arrow { transform: rotate(90deg); }
+
+        .advanced-body {
+            display: none;
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .advanced-body.show { display: block; }
+
+        .url-header {
+            display: flex; gap: 0.5rem; margin-bottom: 0.5rem;
+            font-size: 0.8rem; color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .url-header .name-label {
+            width: 20%;
+            min-width: 20%;
+            flex: none;
+            text-align: center;
+        }
+
+        .url-header .link-label {
+            flex: 1;
+            min-width: 0;
+            padding-left: 1em;
+        }
+
+        .url-item {
+            display: flex; gap: 0.5rem;
+            margin-bottom: 0.5rem; align-items: center;
+        }
+
+        .url-item input.name-input {
+            width: 20% !important;
+            min-width: 20% !important;
+            max-width: 20% !important;
+            flex: none !important;
+            font-size: 0.9rem;
+            padding: 0.75rem 0.5rem;
+            text-align: center;
+            letter-spacing: 0.05em;
+        }
+
+        .url-item .url-input-wrapper {
+            flex: 1; min-width: 0;
+            display: flex; gap: 0.5rem;
+        }
+
+        .url-item .url-input-wrapper input[type="text"] { flex: 1; min-width: 0; }
+
+        .url-item .remove-btn {
+            background: var(--error); color: white; border: none;
+            border-radius: 6px; width: 36px; height: 36px;
+            cursor: pointer; font-size: 1.2rem; flex-shrink: 0;
+        }
+
+        .add-url-btn {
+            background: transparent; border: 1px dashed var(--border);
+            color: var(--text-muted); padding: 0.5rem 1rem;
+            border-radius: 6px; cursor: pointer; width: 100%;
+            margin-top: 0.5rem; transition: all 0.2s;
+        }
+
+        .add-url-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+        .url-output {
+            background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+            padding: 0.75rem 1rem; font-family: var(--editor-font);
+            font-size: 0.78rem; word-break: break-all; color: var(--success);
+            max-height: 120px; overflow-y: auto; margin-bottom: 1rem;
+        }
+
+        .url-output-header {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 0.5rem;
+        }
+
+        .editor-toolbar {
+            display: flex; justify-content: space-between;
+            align-items: center; margin-bottom: 0.75rem;
+            flex-wrap: wrap; gap: 0.5rem;
+        }
+
+        .editor-toolbar-left { display: flex; align-items: center; gap: 0.75rem; }
+        .editor-toolbar-right { display: flex; align-items: center; gap: 0.5rem; }
+
+        .editor-status { font-size: 0.8rem; color: var(--text-muted); }
+        .editor-status.success { color: var(--success); }
+        .editor-status.error { color: var(--error); }
+
+        .code-editor-wrapper {
+            position: relative;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: var(--editor-bg);
+        }
+
+        .code-editor-wrapper:focus-within {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+        }
+
+        .code-editor-wrapper.has-changes { border-color: var(--warning); }
+
+        .code-editor-wrapper.has-changes:focus-within {
+            box-shadow: 0 0 0 3px rgba(245,158,11,0.15);
+        }
+
+        .editor-container {
+            position: relative;
+            width: 100%;
+            height: 450px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .line-numbers {
+            position: relative;
+            flex-shrink: 0;
+            width: 54px;
+            background: var(--gutter-bg);
+            border-right: 1px solid var(--border);
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .line-numbers-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: var(--editor-padding) 0;
+            font-family: var(--editor-font);
+            font-size: var(--editor-font-size);
+            line-height: var(--editor-line-height);
+            text-align: right;
+            user-select: none;
+        }
+
+        .line-num {
+            display: block;
+            padding: 0 12px 0 8px;
+            color: var(--gutter-text);
+            height: calc(var(--editor-font-size) * var(--editor-line-height));
+        }
+
+        .line-num.active {
+            color: var(--gutter-active);
+            background: var(--highlight-line);
+        }
+
+        .code-area {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .highlight-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .highlight-content {
+            padding: var(--editor-padding);
+            font-family: var(--editor-font);
+            font-size: var(--editor-font-size);
+            line-height: var(--editor-line-height);
+            white-space: pre;
+            color: var(--text);
+            min-height: 100%;
+        }
+
+        .editor-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
+        }
+
+        .code-textarea {
+            width: 100%;
+            height: 100%;
+            padding: var(--editor-padding);
+            font-family: var(--editor-font);
+            font-size: var(--editor-font-size);
+            line-height: var(--editor-line-height);
+            background: transparent;
+            color: transparent;
+            caret-color: var(--primary);
+            border: none;
+            outline: none;
+            resize: none;
+            white-space: pre;
+            overflow: auto;
+            tab-size: 2;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .code-textarea::selection {
+            background: rgba(99,102,241,0.3);
+            -webkit-text-fill-color: transparent;
+        }
+
+        .code-textarea::-webkit-scrollbar { width: 10px; height: 10px; }
+        .code-textarea::-webkit-scrollbar-track { background: transparent; }
+        .code-textarea::-webkit-scrollbar-thumb {
+            background: var(--border); border-radius: 5px;
+            border: 2px solid var(--editor-bg);
+        }
+        .code-textarea::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+        .yaml-key { color: var(--yaml-key); font-weight: 500; }
+        .yaml-string { color: var(--yaml-string); }
+        .yaml-number { color: var(--yaml-number); }
+        .yaml-bool { color: var(--yaml-bool); font-weight: 500; }
+        .yaml-null { color: var(--yaml-null); font-style: italic; }
+        .yaml-comment { color: var(--yaml-comment); font-style: italic; }
+        .yaml-dash { color: var(--yaml-dash); font-weight: 600; }
+        .yaml-colon { color: var(--yaml-colon); }
+        .yaml-anchor { color: var(--yaml-anchor); }
+        .yaml-tag { color: var(--yaml-tag); }
+
+        .editor-info {
+            display: flex; gap: 1.5rem; margin-top: 0.5rem;
+            font-size: 0.8rem; color: var(--text-muted);
+        }
+
+        .loading-overlay {
+            display: none; position: absolute; inset: 0;
+            background: rgba(12,18,34,0.9); border-radius: 10px;
+            align-items: center; justify-content: center;
+            flex-direction: column; gap: 1rem; z-index: 10;
+        }
+
+        .loading-overlay.show { display: flex; }
+
+        .spinner {
+            width: 40px; height: 40px;
+            border: 3px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .loading-text { color: var(--text-muted); font-size: 0.9rem; }
+
+        .copy-toast {
+            position: fixed; top: 20px; right: 20px;
+            background: var(--success); color: #fff;
+            padding: 0.6rem 1.2rem; border-radius: 8px;
+            font-size: 0.9rem; font-weight: 600; z-index: 9999;
+            opacity: 0; transform: translateY(-10px);
+            transition: all 0.3s ease; pointer-events: none;
+        }
+
+        .copy-toast.show { opacity: 1; transform: translateY(0); }
+
+        .fullscreen-overlay {
+            display: none; position: fixed; inset: 0;
+            z-index: 1000; background: var(--bg); flex-direction: column;
+        }
+
+        .fullscreen-overlay.active { display: flex; }
+
+        .fullscreen-header {
+            display: flex; justify-content: space-between;
+            align-items: center; padding: 0.75rem 1.5rem;
+            background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0;
+        }
+
+        .fullscreen-header-left { display: flex; align-items: center; gap: 1rem; }
+        .fullscreen-title { font-weight: 600; font-size: 0.95rem; color: var(--text); }
+        .fullscreen-header-right { display: flex; align-items: center; gap: 0.5rem; }
+        .fullscreen-body { flex: 1; overflow: hidden; display: flex; }
+
+        .fullscreen-editor-wrapper {
+            flex: 1; position: relative; background: var(--editor-bg);
+            overflow: hidden; display: flex;
+        }
+
+        .fullscreen-editor-wrapper .editor-container { height: 100%; }
+
+        .fullscreen-footer {
+            display: flex; gap: 1.5rem; padding: 0.5rem 1.5rem;
+            background: var(--surface); border-top: 1px solid var(--border);
+            font-size: 0.8rem; color: var(--text-muted); flex-shrink: 0;
+        }
+
+        .fullscreen-esc-hint {
+            font-size: 0.75rem; color: var(--text-muted);
+            background: rgba(99,102,241,0.1);
+            border: 1px solid rgba(99,102,241,0.15);
+            border-radius: 4px; padding: 0.15rem 0.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 0.75rem 1rem;
+            margin-top: 0.5rem;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        footer a:hover { color: var(--primary-hover); text-decoration: underline; }
+
+        .footer-thanks {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 0.25rem 1rem;
+            margin-top: 0.3rem;
+        }
+
+        .footer-thanks span { white-space: nowrap; }
+
+        .footer-note {
+            margin-top: 0.4rem;
+            font-size: 0.7rem;
+            opacity: 0.6;
+        }
+
+        @media (max-width: 768px) {
+            .container { max-width: 100%; }
+            .row { flex-direction: column; gap: 0; }
+            .options-grid { grid-template-columns: 1fr 1fr; }
+            h1 { font-size: 2rem; }
+            .editor-toolbar { flex-direction: column; align-items: flex-start; }
+            .editor-container { height: 350px; }
+            .url-item { flex-direction: column; align-items: stretch; }
+            .url-item input.name-input {
+                width: 100% !important;
+                min-width: 100% !important;
+                max-width: 100% !important;
+            }
+            .url-item .url-input-wrapper { width: 100%; }
+            .url-header { display: none; }
+            .select-with-custom { flex-direction: column; }
+            .custom-url-input { flex: 1; max-width: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="copy-toast" id="copy-toast">已复制到剪贴板</div>
+
+    <div class="fullscreen-overlay" id="fullscreen-overlay">
+        <div class="fullscreen-header">
+            <div class="fullscreen-header-left">
+                <span class="fullscreen-title">全屏编辑</span>
+                <span class="fullscreen-esc-hint">ESC 退出</span>
+            </div>
+            <div class="fullscreen-header-right">
+                <button class="btn btn-outline btn-sm" id="fs-format-btn" title="重新格式化YAML">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                    格式化
+                </button>
+                <button class="btn btn-outline btn-sm" id="fs-revert-btn">还原</button>
+                <button class="btn btn-outline btn-sm" id="fs-copy-btn">复制源码</button>
+                <button class="btn btn-success btn-sm" id="fs-download-btn">下载文件</button>
+                <button class="btn btn-outline btn-sm" id="fs-exit-btn" title="退出全屏">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/>
+                        <line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/>
+                    </svg>
+                    退出全屏
+                </button>
+            </div>
+        </div>
+        <div class="fullscreen-body">
+            <div class="fullscreen-editor-wrapper">
+                <div class="editor-container" id="fs-editor-container">
+                    <div class="line-numbers" id="fs-line-numbers">
+                        <div class="line-numbers-content" id="fs-line-numbers-content"></div>
+                    </div>
+                    <div class="code-area">
+                        <div class="highlight-layer">
+                            <pre class="highlight-content" id="fs-highlight-content"></pre>
+                        </div>
+                        <div class="editor-layer">
+                            <textarea class="code-textarea" id="fs-source-editor" spellcheck="false" wrap="off"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="fullscreen-footer">
+            <span id="fs-line-count">行数: 0</span>
+            <span id="fs-char-count">字符: 0</span>
+            <span id="fs-file-size">大小: 0 B</span>
+            <span id="fs-cursor-pos">行 1, 列 1</span>
+        </div>
+    </div>
+
+    <div class="container">
+        <header>
+            <h1>订阅链接转换工具</h1>
+            <p class="subtitle">基于 SubConverter-Extended | 完美兼容 Mihomo 内核</p>
+        </header>
+
+        <div class="card">
+            <div class="tabs">
+                <div class="tab active" data-tab="settings">设置</div>
+                <div class="tab" data-tab="source" id="source-tab-btn" style="display: none;">YAML文件 <span class="badge" id="source-badge"></span></div>
+            </div>
+
+            <div class="tab-content active" id="settings-tab">
+                <div class="form-group">
+                    <label>订阅链接</label>
+                    <div class="url-header">
+                        <span class="name-label">名称(可选)</span>
+                        <span class="link-label">订阅链接</span>
+                    </div>
+                    <div id="url-list">
+                        <div class="url-item">
+                            <input type="text" class="name-input" placeholder="××云" value="">
+                            <div class="url-input-wrapper">
+                                <input type="text" class="subscription-url" placeholder="https://example.com/sub">
+                                <button class="remove-btn" onclick="removeUrl(this)">×</button>
+                            </div>
+                        </div>
+                        <div class="url-item">
+                            <input type="text" class="name-input" placeholder="××云" value="">
+                            <div class="url-input-wrapper">
+                                <input type="text" class="subscription-url" placeholder="https://example.com/sub2">
+                                <button class="remove-btn" onclick="removeUrl(this)">×</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="add-url-btn" onclick="addUrl()">+ 添加更多订阅链接</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="config-select">远程配置文件URL</label>
+                    <div class="select-with-custom">
+                        <select id="config-select">
+							<option value="https://raw.githubusercontent.com/ctowl/clash_rules/refs/heads/dev/clash.ini">自用规则</option>
+                            <option value="https://testingcf.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/cfg/Custom_Clash.ini">Aethersailor标准规则模板(Custom_Clash.ini)</option>
+                            <option value="https://testingcf.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/cfg/Custom_Clash_GFW.ini">Aethersailor极简规则模板(Custom_Clash_GFW.ini)</option>
+                            <option value="https://testingcf.jsdelivr.net/gh/Aethersailor/Custom_OpenClash_Rules@main/cfg/Custom_Clash_Lite.ini">Aethersailor更精简规则模板(Custom_Clash_Lite.ini</option>
+                            <option value="https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Online.ini">ACL4SSR 在线版</option>
+                            <option value="https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/config/ACL4SSR_Mini.ini">ACL4SSR 精简版</option>
+							<option value="__custom__">自定义...</option>
+                        </select>
+                        <input type="text" id="config-url" class="custom-url-input hidden" placeholder="输入自定义配置文件URL">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="service-select">转换服务地址</label>
+                    <div class="select-with-custom">
+                        <select id="service-select">
+                            <option value="https://api.asailor.org/sub">asailor.org</option>
+                            <option value="__custom__">自定义...</option>
+                        </select>
+                        <input type="text" id="service-url" class="custom-url-input hidden" placeholder="输入自定义转换服务地址">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="target">客户端类型</label>
+                    <select id="target">
+                        <option value="clash">Clash</option>
+                        <option value="surge">Surge</option>
+                        <option value="quanx">Quantumult</option>
+                    </select>
+                </div>
+
+                <div class="advanced-toggle" id="advanced-toggle" onclick="toggleAdvanced()">
+                    <span class="arrow">▶</span>
+                    <span>高级选项</span>
+                </div>
+                <div class="advanced-body" id="advanced-body">
+                    <div class="options-grid">
+                        <div class="option-group">
+                            <input type="checkbox" id="emoji" checked>
+                            <label for="emoji">Emoji图标 (emoji)</label>
+                        </div>
+                        <div class="option-group">
+                            <input type="checkbox" id="udp" checked>
+                            <label for="udp">启用UDP (udp)</label>
+                        </div>
+                        <div class="option-group">
+                            <input type="checkbox" id="scv" checked>
+                            <label for="scv">跳过证书验证 (scv)</label>
+                        </div>
+                    </div>
+
+                    <div class="row" style="margin-top: 1rem;">
+                        <div class="form-group">
+                            <label for="include">包含规则 (include)</label>
+                            <input type="text" id="include" placeholder="香港|日本|美国">
+                        </div>
+                        <div class="form-group">
+                            <label for="exclude">排除规则 (exclude)</label>
+                            <input type="text" id="exclude" placeholder="流量|到期|官网">
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn" id="generate-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <path d="M3 3v5h5"></path>
+                        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
+                        <path d="M16 16h5v5"></path>
+                    </svg>
+                    生成并拉取源码
+                </button>
+
+                <div class="error-message" id="error-message"></div>
+            </div>
+
+            <div class="tab-content" id="source-tab">
+                <div class="url-output-header">
+                    <span style="font-weight:600;font-size:0.9rem;">转换链接</span>
+                    <button class="btn btn-outline btn-sm" id="copy-url-btn" style="display:none;">复制链接</button>
+                </div>
+                <div class="url-output" id="output-url" style="display:none;"></div>
+
+                <div class="editor-toolbar">
+                    <div class="editor-toolbar-left">
+                        <span class="editor-status" id="editor-status">等待生成...</span>
+                    </div>
+                    <div class="editor-toolbar-right">
+                        <button class="btn btn-outline btn-sm" id="fullscreen-btn" style="display:none;" title="全屏编辑">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+                                <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+                            </svg>
+                            全屏
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="format-btn" style="display:none;" title="重新格式化YAML">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                            格式化
+                        </button>
+                        <button class="btn btn-outline btn-sm" id="revert-btn" style="display:none;">还原</button>
+                        <button class="btn btn-outline btn-sm" id="copy-source-btn" style="display:none;">复制源码</button>
+                        <button class="btn btn-success btn-sm" id="download-btn" style="display:none;">下载文件</button>
+                    </div>
+                </div>
+
+                <div class="code-editor-wrapper" id="editor-wrapper">
+                    <div class="loading-overlay" id="loading-overlay">
+                        <div class="spinner"></div>
+                        <div class="loading-text" id="loading-text">正在拉取源码...</div>
+                    </div>
+                    <div class="editor-container" id="editor-container">
+                        <div class="line-numbers" id="line-numbers">
+                            <div class="line-numbers-content" id="line-numbers-content"></div>
+                        </div>
+                        <div class="code-area">
+                            <div class="highlight-layer">
+                                <pre class="highlight-content" id="highlight-content"></pre>
+                            </div>
+                            <div class="editor-layer">
+                                <textarea class="code-textarea" id="source-editor" spellcheck="false" wrap="off"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="editor-info">
+                    <span id="line-count">行数: 0</span>
+                    <span id="char-count">字符: 0</span>
+                    <span id="file-size">大小: 0 B</span>
+                    <span id="cursor-pos">行 1, 列 1</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        感谢开源项目：
+        <div class="footer-thanks">
+            <span><a href="https://github.com/Aethersailor/SubConverter-Extended" target="_blank" rel="noopener noreferrer">SubConverter-Extended</a></span>
+            <span><a href="https://github.com/Aethersailor/Custom_OpenClash_Rules" target="_blank" rel="noopener noreferrer">Custom_OpenClash_Rules</a></span>
+            <span><a href="https://github.com/MetaCubeX/mihomo" target="_blank" rel="noopener noreferrer">Mihomo</a></span>
+            <span><a href="https://github.com/ACL4SSR/ACL4SSR" target="_blank" rel="noopener noreferrer">ACL4SSR</a></span>
+        </div>
+        <div class="footer-note">仅供学习研究使用，请遵守当地法律法规</div>
+    </footer>
+
+    <script>
+        var originalSource = '';
+        var formattedSource = '';
+        var generatedUrl = '';
+        var isFullscreen = false;
+
+        var editor = { main: null, fullscreen: null };
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initTabs();
+            initDropdowns();
+            initEditor('main');
+            initEditor('fullscreen');
+            initButtons();
+            initKeyboard();
+        });
+
+        function initTabs() {
+            var tabs = document.querySelectorAll('.tab');
+            for (var i = 0; i < tabs.length; i++) {
+                tabs[i].addEventListener('click', function() {
+                    if (this.style.display === 'none') return;
+                    var tabId = this.getAttribute('data-tab');
+                    document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+                    this.classList.add('active');
+                    document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+                    document.getElementById(tabId + '-tab').classList.add('active');
+                });
+            }
+        }
+
+        function initDropdowns() {
+            document.getElementById('config-select').addEventListener('change', function() {
+                var inp = document.getElementById('config-url');
+                if (this.value === '__custom__') { inp.classList.remove('hidden'); inp.focus(); }
+                else { inp.classList.add('hidden'); inp.value = ''; }
+            });
+            document.getElementById('service-select').addEventListener('change', function() {
+                var inp = document.getElementById('service-url');
+                if (this.value === '__custom__') { inp.classList.remove('hidden'); inp.focus(); }
+                else { inp.classList.add('hidden'); inp.value = ''; }
+            });
+        }
+
+        function getSelectedConfigUrl() {
+            var sel = document.getElementById('config-select');
+            var inp = document.getElementById('config-url');
+            return sel.value === '__custom__' ? inp.value.trim() : sel.value;
+        }
+
+        function getSelectedServiceUrl() {
+            var sel = document.getElementById('service-select');
+            var inp = document.getElementById('service-url');
+            return sel.value === '__custom__' ? inp.value.trim() : sel.value;
+        }
+
+        function initEditor(type) {
+            var prefix = type === 'main' ? '' : 'fs-';
+            var textarea = document.getElementById(prefix + 'source-editor');
+            var highlightContent = document.getElementById(prefix + 'highlight-content');
+            var lineNumbersContent = document.getElementById(prefix + 'line-numbers-content');
+            var lineNumbers = document.getElementById(prefix + 'line-numbers');
+
+            editor[type] = { textarea: textarea, highlightContent: highlightContent, lineNumbersContent: lineNumbersContent, lineNumbers: lineNumbers };
+
+            textarea.addEventListener('scroll', function() { syncEditorScroll(type); });
+            textarea.addEventListener('input', function() { updateEditor(type); if (type === 'main') checkSourceChanges(); });
+            textarea.addEventListener('click', function() { updateCursorPos(type); });
+            textarea.addEventListener('keyup', function() { updateCursorPos(type); });
+            textarea.addEventListener('keydown', function(e) { handleEditorKeys(e, type); });
+        }
+
+        function syncEditorScroll(type) {
+            var e = editor[type]; if (!e) return;
+            e.highlightContent.style.transform = 'translate(' + (-e.textarea.scrollLeft) + 'px, ' + (-e.textarea.scrollTop) + 'px)';
+            e.lineNumbersContent.style.transform = 'translateY(' + (-e.textarea.scrollTop) + 'px)';
+            updateActiveLine(type);
+        }
+
+        function updateActiveLine(type) {
+            var e = editor[type]; if (!e) return;
+            var text = e.textarea.value.substring(0, e.textarea.selectionStart);
+            var cursorLine = text.split('\n').length;
+            var lineNums = e.lineNumbersContent.querySelectorAll('.line-num');
+            for (var i = 0; i < lineNums.length; i++) lineNums[i].classList.toggle('active', i === cursorLine - 1);
+        }
+
+        function updateEditor(type) {
+            var e = editor[type]; if (!e) return;
+            var text = e.textarea.value;
+            e.highlightContent.innerHTML = highlightYaml(text);
+            var lines = text.split('\n');
+            var lineNumsHtml = '';
+            for (var i = 0; i < lines.length; i++) lineNumsHtml += '<span class="line-num">' + (i + 1) + '</span>';
+            e.lineNumbersContent.innerHTML = lineNumsHtml;
+            updateEditorInfo(type, text);
+            syncEditorScroll(type);
+        }
+
+        function setEditorContent(text) {
+            ['main', 'fullscreen'].forEach(function(type) {
+                var e = editor[type];
+                if (e) { e.textarea.value = text; updateEditor(type); }
+            });
+        }
+
+        function updateEditorInfo(type, text) {
+            var prefix = type === 'main' ? '' : 'fs-';
+            var lines = text.split('\n').length;
+            var chars = text.length;
+            var bytes = new Blob([text]).size;
+            document.getElementById(prefix + 'line-count').textContent = '行数: ' + lines;
+            document.getElementById(prefix + 'char-count').textContent = '字符: ' + chars;
+            document.getElementById(prefix + 'file-size').textContent = '大小: ' + (bytes > 1024 ? (bytes / 1024).toFixed(1) + ' KB' : bytes + ' B');
+        }
+
+        function updateCursorPos(type) {
+            var e = editor[type]; if (!e) return;
+            var prefix = type === 'main' ? '' : 'fs-';
+            var text = e.textarea.value.substring(0, e.textarea.selectionStart);
+            var lines = text.split('\n');
+            document.getElementById(prefix + 'cursor-pos').textContent = '行 ' + lines.length + ', 列 ' + (lines[lines.length - 1].length + 1);
+            updateActiveLine(type);
+        }
+
+        function checkSourceChanges() {
+            var text = editor.main.textarea.value;
+            if (formattedSource && text !== formattedSource) {
+                document.getElementById('editor-wrapper').classList.add('has-changes');
+                setStatus('源码已修改');
+            } else {
+                document.getElementById('editor-wrapper').classList.remove('has-changes');
+                if (formattedSource) setStatus('格式化完成', 'success');
+            }
+        }
+
+        function handleEditorKeys(e, type) {
+            var textarea = e.target;
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                var start = textarea.selectionStart, end = textarea.selectionEnd;
+                if (e.shiftKey) {
+                    var before = textarea.value.substring(0, start);
+                    var lineStart = before.lastIndexOf('\n') + 1;
+                    var lineContent = textarea.value.substring(lineStart);
+                    if (lineContent.startsWith('  ')) {
+                        textarea.value = textarea.value.substring(0, lineStart) + lineContent.substring(2);
+                        textarea.selectionStart = Math.max(lineStart, start - 2);
+                        textarea.selectionEnd = Math.max(lineStart, end - 2);
+                    }
+                } else {
+                    textarea.value = textarea.value.substring(0, start) + '  ' + textarea.value.substring(end);
+                    textarea.selectionStart = textarea.selectionEnd = start + 2;
+                }
+                textarea.dispatchEvent(new Event('input'));
+            }
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                var start = textarea.selectionStart;
+                var before = textarea.value.substring(0, start);
+                var currentLine = before.split('\n').pop();
+                var indent = currentLine.match(/^(\s*)/)[1];
+                var trimmedLine = currentLine.trim();
+                var extra = '';
+                if (trimmedLine.endsWith(':') || trimmedLine === '-') extra = '  ';
+                var listMatch = currentLine.match(/^(\s*)-\s/);
+                if (listMatch && trimmedLine !== '-') extra = listMatch[1] + '- ';
+                var insert = '\n' + indent + extra;
+                textarea.value = textarea.value.substring(0, start) + insert + textarea.value.substring(textarea.selectionEnd);
+                textarea.selectionStart = textarea.selectionEnd = start + insert.length;
+                textarea.dispatchEvent(new Event('input'));
+            }
+        }
+
+        function syncFullscreenEditor() {
+            if (!editor.main || !editor.fullscreen) return;
+            editor.fullscreen.textarea.value = editor.main.textarea.value;
+            updateEditor('fullscreen');
+        }
+
+        function syncFromFullscreen() {
+            if (!editor.main || !editor.fullscreen) return;
+            editor.main.textarea.value = editor.fullscreen.textarea.value;
+            updateEditor('main');
+            checkSourceChanges();
+        }
+
+        function initButtons() {
+            document.getElementById('generate-btn').addEventListener('click', generateAndFetch);
+            document.getElementById('copy-url-btn').addEventListener('click', copyUrl);
+            document.getElementById('copy-source-btn').addEventListener('click', copySource);
+            document.getElementById('download-btn').addEventListener('click', downloadSource);
+            document.getElementById('revert-btn').addEventListener('click', revertSource);
+            document.getElementById('format-btn').addEventListener('click', reformatYaml);
+            document.getElementById('fullscreen-btn').addEventListener('click', enterFullscreen);
+            document.getElementById('fs-exit-btn').addEventListener('click', exitFullscreen);
+            document.getElementById('fs-format-btn').addEventListener('click', function() { reformatYaml(); syncFullscreenEditor(); });
+            document.getElementById('fs-revert-btn').addEventListener('click', function() { revertSource(); syncFullscreenEditor(); });
+            document.getElementById('fs-copy-btn').addEventListener('click', copySource);
+            document.getElementById('fs-download-btn').addEventListener('click', downloadSource);
+        }
+
+        function initKeyboard() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && isFullscreen) exitFullscreen();
+            });
+        }
+
+        function enterFullscreen() {
+            if (!formattedSource) return;
+            isFullscreen = true;
+            syncFullscreenEditor();
+            document.getElementById('fullscreen-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            setTimeout(function() { editor.fullscreen.textarea.focus(); }, 100);
+        }
+
+        function exitFullscreen() {
+            isFullscreen = false;
+            syncFromFullscreen();
+            document.getElementById('fullscreen-overlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function toggleAdvanced() {
+            document.getElementById('advanced-toggle').classList.toggle('open');
+            document.getElementById('advanced-body').classList.toggle('show');
+        }
+
+        function addUrl() {
+            var div = document.createElement('div');
+            div.className = 'url-item';
+            div.innerHTML = '<input type="text" class="name-input" placeholder="××云" value=""><div class="url-input-wrapper"><input type="text" class="subscription-url" placeholder="https://example.com/sub"><button class="remove-btn" onclick="removeUrl(this)">×</button></div>';
+            document.getElementById('url-list').appendChild(div);
+        }
+
+        function removeUrl(btn) {
+            if (document.getElementById('url-list').children.length > 1) btn.closest('.url-item').remove();
+        }
+
+        function setStatus(msg, type) {
+            var el = document.getElementById('editor-status');
+            el.textContent = msg;
+            el.className = 'editor-status' + (type ? ' ' + type : '');
+        }
+
+        function showError(msg) {
+            var el = document.getElementById('error-message');
+            el.textContent = msg; el.style.display = 'block';
+        }
+
+        function highlightYaml(text) { return text.split('\n').map(highlightYamlLine).join('\n'); }
+
+        function highlightYamlLine(line) {
+            if (line.trim() === '') return escapeHtml(line);
+            if (line.trim().startsWith('#')) return '<span class="yaml-comment">' + escapeHtml(line) + '</span>';
+            var indentMatch = line.match(/^(\s*)/);
+            var indent = indentMatch ? indentMatch[1] : '';
+            var rest = line.slice(indent.length);
+            var result = escapeHtml(indent);
+            if (rest === '---' || rest === '...') return result + '<span class="yaml-dash">' + escapeHtml(rest) + '</span>';
+            if (rest.startsWith('!')) { var m = rest.match(/^(!\S+\s*)/); if (m) { result += '<span class="yaml-tag">' + escapeHtml(m[1]) + '</span>'; rest = rest.slice(m[1].length); } }
+            if (rest.startsWith('&')) { var m = rest.match(/^(&\S+\s*)/); if (m) { result += '<span class="yaml-anchor">' + escapeHtml(m[1]) + '</span>'; rest = rest.slice(m[1].length); } }
+            if (rest.startsWith('*')) { var m = rest.match(/^(\*\S+\s*)/); if (m) { result += '<span class="yaml-anchor">' + escapeHtml(m[1]) + '</span>'; rest = rest.slice(m[1].length); } }
+            if (rest.startsWith('- ')) {
+                result += '<span class="yaml-dash">-</span> '; rest = rest.slice(2);
+                var kv = rest.match(/^([^:]+?):\s*(.*)/);
+                if (kv) { result += '<span class="yaml-key">' + escapeHtml(kv[1]) + '</span><span class="yaml-colon">:</span>'; if (kv[2]) result += ' ' + highlightValue(kv[2]); return result; }
+                return result + highlightValue(rest);
+            }
+            if (rest === '-') return result + '<span class="yaml-dash">-</span>';
+            var kv = rest.match(/^([^:]+?):(\s*)(.*)/);
+            if (kv) { result += '<span class="yaml-key">' + escapeHtml(kv[1]) + '</span><span class="yaml-colon">:</span>' + escapeHtml(kv[2]); if (kv[3]) result += highlightValue(kv[3]); return result; }
+            return result + escapeHtml(rest);
+        }
+
+        function highlightValue(val) {
+            var trimmed = val.trim();
+            var ci = findUnquotedChar(val, '#');
+            if (ci > 0) return highlightValue(val.slice(0, ci)) + '<span class="yaml-comment">' + escapeHtml(val.slice(ci)) + '</span>';
+            if (/^(null|Null|NULL|~)$/.test(trimmed)) return '<span class="yaml-null">' + escapeHtml(val) + '</span>';
+            if (/^(true|false|True|False|TRUE|FALSE|yes|no|Yes|No|YES|NO|on|off|On|Off|ON|OFF)$/.test(trimmed)) return '<span class="yaml-bool">' + escapeHtml(val) + '</span>';
+            if (/^-?\d+(\.\d+)?([eE][+-]?\d+)?$/.test(trimmed) || /^0x[\da-fA-F]+$/.test(trimmed)) return '<span class="yaml-number">' + escapeHtml(val) + '</span>';
+            if ((trimmed[0] === '"' && trimmed[trimmed.length-1] === '"') || (trimmed[0] === "'" && trimmed[trimmed.length-1] === "'")) return '<span class="yaml-string">' + escapeHtml(val) + '</span>';
+            if (trimmed === '|' || trimmed === '>' || trimmed[0] === '|' || trimmed[0] === '>') return '<span class="yaml-dash">' + escapeHtml(val) + '</span>';
+            if (trimmed[0] === '&' || trimmed[0] === '*') return '<span class="yaml-anchor">' + escapeHtml(val) + '</span>';
+            if (trimmed[0] === '!') return '<span class="yaml-tag">' + escapeHtml(val) + '</span>';
+            return '<span class="yaml-string">' + escapeHtml(val) + '</span>';
+        }
+
+        function findUnquotedChar(str, char) {
+            var inS = false, inD = false;
+            for (var i = 0; i < str.length; i++) {
+                if (str[i] === "'" && !inD) inS = !inS;
+                else if (str[i] === '"' && !inS) inD = !inD;
+                else if (str[i] === char && !inS && !inD) return i;
+            }
+            return -1;
+        }
+
+        function escapeHtml(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+        function formatYaml(raw) {
+            var text = raw.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+            text = text.split('\n').map(function(l) { return l.trimEnd(); }).join('\n');
+            return text.trimEnd() + '\n';
+        }
+
+        function reformatYaml() {
+            var text = editor.main.textarea.value; if (!text) return;
+            formattedSource = formatYaml(text);
+            setEditorContent(formattedSource);
+            document.getElementById('editor-wrapper').classList.remove('has-changes');
+            setStatus('已重新格式化', 'success');
+        }
+
+        function revertSource() {
+            if (!formattedSource) return;
+            setEditorContent(formattedSource);
+            document.getElementById('editor-wrapper').classList.remove('has-changes');
+            setStatus('已还原', 'success');
+        }
+
+        function copyToClipboard(text) {
+            return new Promise(function(resolve, reject) {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(text).then(resolve).catch(function() { fallbackCopy(text) ? resolve() : reject(); });
+                } else { fallbackCopy(text) ? resolve() : reject(); }
+            });
+        }
+
+        function fallbackCopy(text) {
+            var ta = document.createElement('textarea');
+            ta.value = text; ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+            document.body.appendChild(ta); ta.focus(); ta.select();
+            try { var ok = document.execCommand('copy'); document.body.removeChild(ta); return ok; }
+            catch (e) { document.body.removeChild(ta); return false; }
+        }
+
+        function showCopyToast(msg) {
+            var toast = document.getElementById('copy-toast');
+            toast.textContent = msg || '已复制到剪贴板';
+            toast.classList.add('show');
+            setTimeout(function() { toast.classList.remove('show'); }, 1800);
+        }
+
+        function copyUrl() {
+            if (!generatedUrl) return;
+            copyToClipboard(generatedUrl).then(function() { showCopyToast('链接已复制!'); }).catch(function() { showCopyToast('复制失败，请手动复制'); });
+        }
+
+        function copySource() {
+            var text = editor.main.textarea.value; if (!text) return;
+            copyToClipboard(text).then(function() { showCopyToast('源码已复制!'); }).catch(function() { showCopyToast('复制失败，请手动复制'); });
+        }
+
+        function downloadSource() {
+            var text = editor.main.textarea.value; if (!text) return;
+            var target = document.getElementById('target').value;
+            var extMap = { clash: 'yaml', surge: 'conf', quan: 'conf', quanx: 'conf', loon: 'conf', ss: 'json', ssr: 'json', v2ray: 'json' };
+            var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+            var a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'sub_' + target + '_' + Date.now() + '.' + (extMap[target] || 'yaml');
+            a.click(); URL.revokeObjectURL(a.href);
+        }
+
+        function buildUrl() {
+            var urlParts = [];
+            var items = document.querySelectorAll('.url-item');
+            for (var i = 0; i < items.length; i++) {
+                var item = items[i];
+                var name = item.querySelector('.name-input') ? item.querySelector('.name-input').value.trim() : '';
+                var url = item.querySelector('.subscription-url') ? item.querySelector('.subscription-url').value.trim() : '';
+                if (url) {
+                    if (name) {
+                        urlParts.push('provider:' + encodeURIComponent(name) + ',' + encodeURIComponent(url));
+                    } else {
+                        urlParts.push(encodeURIComponent(url));
+                    }
+                }
+            }
+            var configUrl = getSelectedConfigUrl();
+            var serviceUrl = getSelectedServiceUrl();
+            var target = document.getElementById('target').value;
+            var emoji = document.getElementById('emoji').checked;
+            var udp = document.getElementById('udp').checked;
+            var scv = document.getElementById('scv').checked;
+            var include = document.getElementById('include').value.trim();
+            var exclude = document.getElementById('exclude').value.trim();
+
+            if (urlParts.length === 0) return { error: '请至少输入一个订阅链接' };
+            if (!serviceUrl) return { error: '请输入转换服务地址' };
+
+            var urlParam = urlParts.join('|');
+            var params = 'target=' + target + '&url=' + urlParam;
+            if (configUrl) params += '&config=' + encodeURIComponent(configUrl);
+            if (include) params += '&include=' + encodeURIComponent(include);
+            if (exclude) params += '&exclude=' + encodeURIComponent(exclude);
+            params += '&emoji=' + emoji + '&udp=' + udp + '&scv=' + scv;
+
+            var finalUrl = serviceUrl;
+            if (finalUrl.indexOf('?') === -1) finalUrl += '?';
+            else if (!finalUrl.endsWith('&') && !finalUrl.endsWith('?')) finalUrl += '&';
+            finalUrl += params;
+
+            return { url: finalUrl };
+        }
+
+        async function generateAndFetch() {
+            var result = buildUrl();
+            if (result.error) { showError(result.error); return; }
+
+            generatedUrl = result.url;
+
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('output-url').textContent = generatedUrl;
+            document.getElementById('output-url').style.display = 'block';
+            document.getElementById('copy-url-btn').style.display = 'inline-flex';
+
+            document.getElementById('source-tab-btn').style.display = 'block';
+            document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+            document.getElementById('source-tab-btn').classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(function(c) { c.classList.remove('active'); });
+            document.getElementById('source-tab').classList.add('active');
+
+            document.getElementById('loading-overlay').classList.add('show');
+            document.getElementById('loading-text').textContent = '正在拉取源码...';
+            setEditorContent('');
+            setStatus('正在请求转换服务...');
+
+            ['format-btn', 'revert-btn', 'copy-source-btn', 'download-btn', 'fullscreen-btn'].forEach(function(id) {
+                document.getElementById(id).style.display = 'none';
+            });
+
+            try {
+                var response = await fetch(generatedUrl);
+                if (!response.ok) throw new Error('HTTP ' + response.status + ' ' + response.statusText);
+                var rawText = await response.text();
+                originalSource = rawText;
+
+                document.getElementById('loading-text').textContent = '正在格式化...';
+                await new Promise(function(r) { setTimeout(r, 100); });
+                formattedSource = formatYaml(rawText);
+
+                setEditorContent(formattedSource);
+                setStatus('格式化完成', 'success');
+
+                ['format-btn', 'revert-btn', 'copy-source-btn', 'download-btn', 'fullscreen-btn'].forEach(function(id) {
+                    document.getElementById(id).style.display = 'inline-flex';
+                });
+
+                document.getElementById('source-badge').classList.add('show');
+                document.getElementById('editor-wrapper').classList.remove('has-changes');
+
+            } catch (err) {
+                var errorMsg = '# 拉取失败: ' + err.message + '\n#\n# 可能原因:\n#   1. 转换服务地址不可达\n#   2. 跨域(CORS)限制\n#   3. 订阅链接无效\n#\n# 建议: 复制上方链接到浏览器地址栏直接访问\n';
+                originalSource = ''; formattedSource = errorMsg;
+                setEditorContent(errorMsg);
+                setStatus('拉取失败: ' + err.message, 'error');
+                document.getElementById('source-badge').classList.remove('show');
+            } finally {
+                document.getElementById('loading-overlay').classList.remove('show');
+            }
+        }
+    </script>
+</body>
+</html>
