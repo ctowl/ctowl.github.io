@@ -1,0 +1,61 @@
+name: Clean Up
+
+on:
+  workflow_dispatch:
+
+jobs:
+  clean:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 0
+
+      - name: Reset commit history
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git checkout --orphan latest_branch
+          git add -A
+          git commit -m "Initial commit"
+          git branch -D main
+          git branch -m main
+          git push -f origin main
+
+      - name: Delete all workflow runs
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          REPO="${{ github.repository }}"
+          CURRENT_RUN="${{ github.run_id }}"
+          while true; do
+            RUNS=$(gh api "repos/${REPO}/actions/runs" --jq ".workflow_runs[] | select(.id != ${CURRENT_RUN}) | .id")
+            if [ -z "$RUNS" ]; then
+              echo "All other workflow runs deleted."
+              break
+            fi
+            for RUN_ID in $RUNS; do
+              echo "Deleting run: $RUN_ID"
+              gh api -X DELETE "repos/${REPO}/actions/runs/${RUN_ID}" || echo "Skip run $RUN_ID"
+            done
+          done
+
+      - name: Delete all Pages deployments
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          REPO="${{ github.repository }}"
+          while true; do
+            DEPLOYMENTS=$(gh api "repos/${REPO}/pages/deployments" --jq '.[].id')
+            if [ -z "$DEPLOYMENTS" ]; then
+              echo "All Pages deployments deleted."
+              break
+            fi
+            for DEPLOY_ID in $DEPLOYMENTS; do
+              echo "Deleting deployment: $DEPLOY_ID"
+              gh api -X DELETE "repos/${REPO}/pages/deployments/${DEPLOY_ID}" || echo "Skip deployment $DEPLOY_ID"
+            done
+          done

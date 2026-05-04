@@ -1,0 +1,33 @@
+name: Download Files
+
+on:
+  schedule:
+    - cron: '40 21 * * *'
+  workflow_dispatch:
+
+jobs:
+  download-files:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Download files
+        run: |
+          curl -o SIN.html "${{ secrets.NAS_BASE_URL }}/SIN.txt"
+          curl -o NRT.html "${{ secrets.NAS_BASE_URL }}/NRT.txt"
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add SIN.html NRT.html
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "Update SIN.html and NRT.html $(date -u '+%Y-%m-%d %H:%M')"
+            git push
+          fi
